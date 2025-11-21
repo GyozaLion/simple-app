@@ -1,0 +1,74 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Setup Data
+t = np.linspace(0, 10, 1000)
+
+# Sinyal Asli A (Clock pulse)
+# Menggunakan sinyal kotak: High (1) dan Low (0) bergantian
+signal_A_original = (np.sin(t * np.pi) > 0).astype(float)
+
+# Sinyal Asli C
+# High untuk separuh waktu, Low untuk sisanya
+signal_C_original = np.zeros_like(t)
+signal_C_original[t < 5] = 1  # High until t=5
+
+# --- KASUS A: Input A Low ---
+# A dipaksa 0. Output = 0
+signal_A_case_a = np.zeros_like(t)
+signal_X_case_a = np.zeros_like(t)
+
+# --- KASUS B: Input B High ---
+# B = 1. Output X = A AND 1 AND C -> Output X = A AND C
+# Logika: X bernilai 1 HANYA JIKA A=1 DAN C=1
+signal_X_case_b = np.logical_and(signal_A_original, signal_C_original).astype(float)
+
+# --- KASUS C: Input B & C Low ---
+# B=0, C=0. Output = 0
+signal_X_case_c = np.zeros_like(t)
+
+# --- PLOTTING ---
+fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 12))
+plt.subplots_adjust(hspace=0.6)
+
+# Plot Kasus A
+ax1.set_title("a. Jawaban Jika Input A = LOW", fontsize=14, loc='left', fontweight='bold')
+ax1.plot(t, signal_A_case_a, color='red', linestyle='--', label='Input A (Dipaksa LOW)')
+ax1.plot(t, signal_X_case_a, color='green', linewidth=3, label='OUTPUT X (Hasil)')
+ax1.set_ylim(-0.5, 1.5)
+ax1.set_yticks([0, 1])
+ax1.set_yticklabels(['LOW (0)', 'HIGH (1)'])
+ax1.grid(True, which='both', axis='x', linestyle=':', alpha=0.6)
+ax1.legend(loc='upper right')
+
+# Plot Kasus B
+ax2.set_title("b. Jawaban Jika Input B = HIGH", fontsize=14, loc='left', fontweight='bold')
+# Gambar referensi input agar user paham kenapa outputnya begitu
+ax2.plot(t, signal_A_original, color='blue', linestyle=':', alpha=0.7, label='Input A (Asli)')
+ax2.plot(t, signal_C_original, color='orange', linestyle='--', alpha=0.7, label='Input C (Asli)')
+# Gambar output sesungguhnya
+ax2.step(t, signal_X_case_b, where='post', color='green', linewidth=3, label='OUTPUT X (Hasil)')
+# Fill area untuk memperjelas output
+ax2.fill_between(t, signal_X_case_b, step="post", alpha=0.2, color='green')
+
+ax2.set_ylim(-0.5, 1.5)
+ax2.set_yticks([0, 1])
+ax2.set_yticklabels(['LOW (0)', 'HIGH (1)'])
+ax2.grid(True, which='both', axis='x', linestyle=':', alpha=0.6)
+ax2.legend(loc='upper right')
+# Annotasi
+ax2.text(2.5, 1.2, 'Output Meniru A\n(Karena C = HIGH)', color='green', ha='center', fontsize=9, backgroundcolor='white')
+ax2.text(7.5, 0.2, 'Output Mati\n(Karena C = LOW)', color='red', ha='center', fontsize=9)
+
+
+# Plot Kasus C
+ax3.set_title("c. Jawaban Jika Input B & C = LOW", fontsize=14, loc='left', fontweight='bold')
+ax3.plot(t, np.zeros_like(t), color='purple', linestyle='--', label='Input B & C (Dipaksa LOW)')
+ax3.plot(t, signal_X_case_c, color='green', linewidth=3, label='OUTPUT X (Hasil)')
+ax3.set_ylim(-0.5, 1.5)
+ax3.set_yticks([0, 1])
+ax3.set_yticklabels(['LOW (0)', 'HIGH (1)'])
+ax3.grid(True, which='both', axis='x', linestyle=':', alpha=0.6)
+ax3.legend(loc='upper right')
+
+plt.show()
